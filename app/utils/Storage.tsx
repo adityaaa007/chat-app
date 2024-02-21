@@ -19,8 +19,10 @@ if (Platform.OS === 'android') {
   USER_DIRECTORY = '/path/to/fallback/directory';
 }
 
-export const storage = new MMKV({
-  id: `user-storage`,
-  path: `${USER_DIRECTORY}/storage`,
-  encryptionKey: 'encryptionkey'
-})
+// export const storage = new MMKV({
+//   id: `user-storage`,
+//   path: `${USER_DIRECTORY}/storage`,
+//   encryptionKey: 'encryptionkey'
+// })
+
+export const storage = new MMKV()

@@ -1,28 +1,58 @@
-import React, { useEffect, useState } from 'react'
-import Colors from '../constants/Colors'
-import { config } from '../tamagui.config'
-import { TamaguiProvider } from 'tamagui'
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
-import { Image, Text, Input, Button, View } from 'tamagui'
-import { useColorScheme, StatusBar } from 'react-native'
-import { useRouter } from 'expo-router'
-import Friends from './friends/[id]'
-import GetStarted from './getStarted'
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { useCallback } from 'react';
-import { Toasts } from '@backpackapp-io/react-native-toast';
-
+import React, { useEffect } from "react";
+import { config } from "../tamagui.config";
+import { TamaguiProvider } from "tamagui";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { View } from "tamagui";
+import { AppState, useColorScheme } from "react-native";
+import Friends from "./friends/friends";
+import GetStarted from "./getStarted";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { useCallback } from "react";
+import { storage } from "./utils/Storage";
+import { io } from "socket.io-client";
+import { router } from "expo-router";
 
 export default function NameScreen() {
+  useEffect(() => {
+    
+
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        // Send message when app is about to be backgrounded or terminated
+        console.log('index is unmounted...');
+        
+        if(storage.getString('name')) {
+          const socket = io("http://65.1.114.171:9000");
+
+          const name = storage.getString('name');
+          const id = storage.getString('id');
+
+          socket.emit('user-connect',{name: name, id: id, active: false});
+
+          socket.disconnect()
+        }
+
+      }
+    };
+
+    AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      // AppState.removeEventListener('change', handleAppStateChange);
+    };
+  },[])
+
   const colorScheme = useColorScheme();
-  const router = useRouter();
-  const [name, setName] = useState('');
 
   const [fontsLoaded, fontError] = useFonts({
-    'Helvetica-Bold': require('../assets/fonts/helvetica-bold.ttf'),
-    'Helvetica': require('../assets/fonts/helvetica.ttf'),
-    'Helvetica-Light': require('../assets/fonts/helvetica-light.ttf'),
+    "Helvetica-Bold": require("../assets/fonts/helvetica-bold.ttf"),
+    Helvetica: require("../assets/fonts/helvetica.ttf"),
+    "Helvetica-Light": require("../assets/fonts/helvetica-light.ttf"),
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -37,48 +67,17 @@ export default function NameScreen() {
 
   return (
     <TamaguiProvider config={config} defaultTheme={colorScheme as any}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      
-        {/* <View style={{
-          flex:1,
-          backgroundColor:Colors.dark.background,
-          alignItems:'center',
-          justifyContent:'center'
-        }}>
-          <Image source={require('../assets/images/3d_smiley.png')} width={180} height={180}></Image>
-          <Text fontFamily='$body' color={'white'} fontSize={24} fontWeight={'$13'}>Pick up an alias</Text>
-          <Input 
-            onChangeText={(value: string) => setName(value)}
-            size={'$4'} 
-            width={'50%'}
-            marginTop={32}
-            placeholder={`Name...`} 
-            backgroundColor={Colors.dark.background} 
-            borderColor={Colors.dark.secondary}
-            selectionColor={Colors.dark.primary}
-            cursorColor={Colors.dark.primary}
-            textAlign='center'
-            color={Colors.dark.text}/>
-            <Button 
-            backgroundColor={Colors.dark.primary} 
-            size="$4" 
-            width={'50%'} 
-            marginTop={16}
-            onPress={() => 
-              router.push(`/friends/${name}`) 
-              }>
-              Enter
-            </Button>
-        </View> */}
-
-        <View flex={1} onLayout={onLayoutRootView}>
-          <GetStarted></GetStarted>
-          {/* <Toasts />  */}
-        </View>
-       
-
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        {storage.getString("name") ? (
+          <View flex={1} onLayout={onLayoutRootView}>
+            <Friends></Friends>
+          </View>
+        ) : (
+          <View flex={1} onLayout={onLayoutRootView}>
+            <GetStarted></GetStarted>
+          </View>
+        )}
       </ThemeProvider>
     </TamaguiProvider>
-  )
+  );
 }
-

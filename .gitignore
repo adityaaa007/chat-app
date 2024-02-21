@@ -26,7 +26,7 @@ tmp
 yarn-error.log
 dist
 tsconfig.tsbuildinfo
-node_modules
+node_modules/
 **/_
 **/tests/spec/out
 .DS_Store
@@ -38,7 +38,7 @@ node_modules
 apps/site/out
 apps/kitchen-sink/ios
 
-.tamagui
+.tamagui/
 
 .idea
 
@@ -57,4 +57,4 @@ apps/site/public/talk/
 
 apps/studio/types/**
 
-.expo
+.expo/

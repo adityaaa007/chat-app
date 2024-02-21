@@ -5,8 +5,8 @@
   "scripts": {
     "upgrade:tamagui": "yarn up '*tamagui*'@latest '@tamagui/*'@latest",
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll"
   },
@@ -14,9 +14,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@backpackapp-io/react-native-toast": "^0.10.0",
     "@expo/metro-runtime": "3.1.1",
-    "@heroicons/react": "^2.1.1",
     "@react-navigation/native": "^6.0.2",
     "@tamagui/config": "^1.88.21",
     "@tamagui/lucide-icons": "^1.88.21",
@@ -31,11 +29,12 @@
     "expo-status-bar": "~1.11.1",
     "expo-system-ui": "~2.9.3",
     "expo-web-browser": "~12.8.1",
-    "moti": "^0.27.2",
+    "lucide-react-native": "^0.331.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet-async": "~2.0.4",
     "react-native": "0.73.2",
+    "react-native-emoji-selector": "^0.2.0",
     "react-native-gesture-handler": "^2.15.0",
     "react-native-mmkv": "^2.11.0",
     "react-native-reanimated": "^3.7.0",
@@ -45,6 +44,7 @@
     "react-native-svg": "^14.1.0",
     "react-native-toast-notifications": "^3.4.0",
     "react-native-web": "^0.19.9",
+    "rn-emoji-picker": "^1.1.6",
     "socket.io-client": "^4.7.4",
     "tamagui": "^1.88.21"
   },

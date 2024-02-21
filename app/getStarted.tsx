@@ -50,7 +50,7 @@ export default function GetStarted() {
 
         <TouchableOpacity
           onPress={() => {
-            router.push(`/chooseAvatar`);
+            router.replace(`/chooseAvatar`);
           }}
           style={{
             padding: 16,
