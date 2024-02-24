@@ -48,7 +48,10 @@ To run Chatify on your local machine, follow these steps:
 Open the Expo app on your mobile device and scan the QR code to view the app.
 
 ## Screenshots 📷
-![screenshot1](./assets/images/screenshot1.jpg) ![screenshot2](./assets/images/screenshot2.jpg) ![screenshot3](./assets/images/screenshot3.jpg) ![screenshot4](./assets/images/screenshot4.jpg)
+<img src="./assets/images/screenshot1.jpg" alt="Screenshot 1" width="200">
+<img src="./assets/images/screenshot2.jpg" alt="Screenshot 2" width="200">
+<img src="./assets/images/screenshot3.jpg" alt="Screenshot 3" width="200">
+<img src="./assets/images/screenshot4.jpg" alt="Screenshot 4" width="200">
 
 ## Contributing 🤝
 Contributions are welcome! If you'd like to contribute to Chatify, please fork the repository and create a pull request.
