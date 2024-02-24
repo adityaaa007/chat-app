@@ -29,32 +29,39 @@ To run Chatify on your local machine, follow these steps:
    ```bash
    git clone https://github.com/your-username/chatify.git
    ```
-   
 2. Navigate to the project directory:
-  ```bash
-  cd chatify
-  ```
+
+```bash
+cd chatify
+```
 
 3. Install dependencies:
-  ```bash
-  npm install
-  ```
+
+```bash
+npm install
+```
 
 4. Start the Expo development server:
-  ```bash
-  npm start
-  ```
+
+```bash
+npm start
+```
 
 Open the Expo app on your mobile device and scan the QR code to view the app.
 
 ## Screenshots 📷
-<img src="./assets/images/screenshot1.jpg" alt="Screenshot 1" width="200">
-<img src="./assets/images/screenshot2.jpg" alt="Screenshot 2" width="200">
-<img src="./assets/images/screenshot3.jpg" alt="Screenshot 3" width="200">
-<img src="./assets/images/screenshot4.jpg" alt="Screenshot 4" width="200">
+
+<div style="display: flex; flex-direction: row; gap: 16px; padding: 16px 0;">
+  <img src="./assets/images/screenshot1.jpg" alt="Screenshot 1" width="200">
+  <img src="./assets/images/screenshot2.jpg" alt="Screenshot 2" width="200">
+  <img src="./assets/images/screenshot3.jpg" alt="Screenshot 3" width="200">
+  <img src="./assets/images/screenshot4.jpg" alt="Screenshot 4" width="200">
+</div>
 
 ## Contributing 🤝
+
 Contributions are welcome! If you'd like to contribute to Chatify, please fork the repository and create a pull request.
 
 ## License 📝
+
 This project is licensed under the MIT License - see the LICENSE file for details.
