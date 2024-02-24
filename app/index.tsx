@@ -7,45 +7,56 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { View } from "tamagui";
-import { AppState, useColorScheme } from "react-native";
-import Friends from "./friends/friends";
-import GetStarted from "./getStarted";
+import { AppState, AppStateStatus, useColorScheme } from "react-native";
+import Friends from "./pages/friends";
+import GetStarted from "./pages/getStarted";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback } from "react";
 import { storage } from "./utils/Storage";
-import { io } from "socket.io-client";
-import { router } from "expo-router";
+import SocketManager from "./controller/SocketManager";
 
 export default function NameScreen() {
   useEffect(() => {
-    
+    SocketManager.connect("http://65.1.114.171:9000");
 
-    const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === 'background' || nextAppState === 'inactive') {
-        // Send message when app is about to be backgrounded or terminated
-        console.log('index is unmounted...');
-        
-        if(storage.getString('name')) {
-          const socket = io("http://65.1.114.171:9000");
+    const socket = SocketManager.getSocket()!;
+    const name = storage.getString("name");
+    const id = storage.getString("id");
 
-          const name = storage.getString('name');
-          const id = storage.getString('id');
+    socket.emit("user-connect", {
+      name: name,
+      id: id,
+      active: true,
+    });
 
-          socket.emit('user-connect',{name: name, id: id, active: false});
+    // Add event listener when component mounts
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background') {
+        console.log('unmounting index...............');
 
-          socket.disconnect()
+        if (name) {
+          // const name = storage.getString("name");
+          // const id = storage.getString("id");
+
+          // App is going into the background, disconnect from the socket server
+          if (socket) {
+            console.log("Disconnecting from socket server...");
+            socket.emit("user-connect", { name: name, id: id, active: false });
+            socket.disconnect();
+          }
         }
 
       }
     };
-
+  
     AppState.addEventListener('change', handleAppStateChange);
+  
+    // return () => {
+    //   AppState.removeEventListener('change', handleAppStateChange);
+    // };
 
-    return () => {
-      // AppState.removeEventListener('change', handleAppStateChange);
-    };
-  },[])
+  }, []);
 
   const colorScheme = useColorScheme();
 

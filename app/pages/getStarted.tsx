@@ -15,7 +15,7 @@ export default function GetStarted() {
     <View flex={1} backgroundColor={"black"}>
       <StatusBar backgroundColor="black" />
       <Image
-        src={require("../assets/images/22.jpg")}
+        src={require("../../assets/images/22.jpg")}
         position="absolute"
         width={wp(80)}
         height={hp(100)}
@@ -50,7 +50,7 @@ export default function GetStarted() {
 
         <TouchableOpacity
           onPress={() => {
-            router.replace(`/chooseAvatar`);
+            router.replace(`/pages/chooseAvatar`);
           }}
           style={{
             padding: 16,
@@ -71,7 +71,7 @@ export default function GetStarted() {
             Get started
           </Text>
           <Image
-            src={require("../assets/images/arrow-right.png")}
+            src={require("../../assets/images/arrow-right.png")}
             style={{ width: 16, height: 16, tintColor: Colors.dark.primary }}
           ></Image>
         </TouchableOpacity>

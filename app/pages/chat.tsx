@@ -1,6 +1,6 @@
 import { View, Avatar } from "tamagui";
-import Colors from "../../constants/Colors";
-import MessageBox from "../../components/messageBox";
+import Colors from "../constants/Colors";
+import MessageBox from "../components/messageBox";
 import {
   FlatList,
   TextInput,
@@ -8,63 +8,17 @@ import {
   Text,
   StatusBar,
   Keyboard,
+  AppState
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
-import io from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { storage } from "../utils/Storage";
 import { ChevronLeft, SendHorizonal, SmilePlus } from "lucide-react-native";
-import ProfileData from "../../constants/ProfileData";
+import ProfileData from "../constants/ProfileData";
 import { router } from "expo-router";
-import EmojiPicker, { emojiFromUtf16 } from "rn-emoji-picker";
+import EmojiPicker from "rn-emoji-picker";
 import { emojis } from "rn-emoji-picker/dist/data";
-
-const socket = io("http://65.1.114.171:9000"); // Replace with your server address
-
-const id = storage.getString("id");
-const friendId = storage.getString("friend-id");
-const name = storage.getString("name");
-const friendName = storage.getString("friend-name");
-
-console.log(
-  storage.getString("friend-name") + " " + storage.getString("friend-id")
-);
-
-const data = ProfileData.data;
-
-// Function to fetch the title based on the id
-function getImageById(id: string) {
-  const item = data.find((item) => item.id === id);
-  return item ? item.title : null;
-}
-
-// Function to generate a unique room name between two users
-function generateRoomName(user1Id: string, user2Id: string): string {
-  // Sort the user IDs alphabetically
-  const sortedIds = [user1Id, user2Id].sort();
-  // Concatenate the sorted user IDs with a separator
-  let concatenatedString = sortedIds.join("");
-  concatenatedString = concatenatedString.split("").sort().join("");
-  console.log(concatenatedString);
-
-  return concatenatedString;
-}
-
-const roomName = generateRoomName(name!, friendName!);
-
-const messageHandler = (message: string) => {
-  const data = {
-    room: roomName,
-    message: message,
-    name: name,
-  };
-  // Emit the message to the server
-  if (message != "") {
-    socket.emit("messageToServer", data);
-  }
-};
-
-//join the room
-socket.emit("joinRoom", roomName);
+import SocketManager from "../controller/SocketManager";
 
 export default function Chat() {
   type Data = {
@@ -80,8 +34,6 @@ export default function Chat() {
 
   const [showEmoji, setShowEmoji] = useState(false);
 
-  const [recent, setRecent] = useState([]);
-
   const flatListRef = useRef<FlatList | null>(null);
 
   // Function to scroll FlatList to the bottom
@@ -96,43 +48,97 @@ export default function Chat() {
     scrollToBottom();
   }, [data]); // Assuming data is your FlatList data array
 
-  // const [messageHandler, setMessageHandler] = useState<() => void>(() => {
-  //   console.log('Function defined inside useEffect');
-  // });
-
   const handleInputChange = (text: string): void => {
     // Update the state with the new input value
     setText(text);
+    setShowEmoji(false);
   };
 
-  console.log("remounted...");
+  const [id, setId] = useState("");
+  const [friendId, setFriendId] = useState("");
+  const [name, setName] = useState("");
+  const [friendName, setFriendName] = useState("");
+  const [socket, setSocket] = useState<Socket>();
+  const [room, setRoom] = useState("");
+
+  const imageData = ProfileData.data;
 
   useEffect(() => {
     // Listen for 'message' event from the server
     console.log("useEffect....");
 
-    socket.on("message", (data) => {
-      // Update the state with the new message
-      console.log("name: " + data.name + " my name: " + name);
+    setSocket(SocketManager.getSocket()!);
 
-      if (data.name != name) {
-        setData((prevData: Data[]) => [
-          ...prevData,
-          {
-            id: generateUniqueId(),
-            message: data.message,
-            self: false,
-            time: data.time,
-          },
-        ]);
-      }
-    });
+    setId(storage.getString("id")!);
+    setFriendId(storage.getString("friend-id")!);
+    setName(storage.getString("name")!);
+    setFriendName(storage.getString("friend-name")!);
 
-    // Clean up the socket connection when the component unmounts
-    return () => {
-      socket.disconnect();
-    };
+    console.log(friendName + " " + friendId);
+    
   }, []);
+
+  useEffect(() => {
+    // Function to generate a unique room name between two users
+    function generateRoomName(user1Id: string, user2Id: string): string {
+      // Sort the user IDs alphabetically
+      const sortedIds = [user1Id, user2Id].sort();
+      // Concatenate the sorted user IDs with a separator
+      let concatenatedString = sortedIds.join("");
+      concatenatedString = concatenatedString.split("").sort().join("");
+      console.log(concatenatedString);
+
+      return concatenatedString;
+    }
+
+    const room = generateRoomName(name, friendName);
+    setRoom(room);
+
+    if (socket) {
+      //join the room
+      socket.emit("joinRoom", room);
+
+      socket.on("message", (data) => {
+        // Update the state with the new message
+        console.log("name: " + data.name + " my name: " + name);
+
+        if (data.name != name) {
+          setData((prevData: Data[]) => [
+            ...prevData,
+            {
+              id: generateUniqueId(),
+              message: data.message,
+              self: false,
+              time: data.time,
+            },
+          ]);
+        }
+      });
+
+      // Clean up the socket connection when the component unmounts
+      // return () => {
+      //   socket.disconnect();
+      // };
+    }
+  }, [socket]);
+
+  // Function to fetch the title based on the id
+  function getImageById(id: string) {
+    const item = imageData.find((item) => item.id === id);
+    return item ? item.title : null;
+  }
+
+  const messageHandler = (message: string) => {
+    const data = {
+      room: room,
+      message: message,
+      name: name,
+    };
+    // Emit the message to the server
+    if (message != "") {
+      socket?.emit("messageToServer", data);
+    }
+  };
 
   const generateUniqueId = (): string => {
     return (
@@ -203,7 +209,7 @@ export default function Chat() {
 
       <FlatList
         ref={flatListRef}
-        style={{ marginBottom: 84, marginTop: 16 }}
+        style={{ flex: showEmoji ? 0.4 : 1, marginBottom: 90, marginTop: 0 }}
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -216,7 +222,7 @@ export default function Chat() {
         flexDirection="row"
         style={{
           position: "absolute",
-          bottom: showEmoji ? 264 : 0,
+          bottom: showEmoji ? 320 : 0,
           padding: 16,
           width: "100%",
         }}

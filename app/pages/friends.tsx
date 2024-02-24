@@ -1,17 +1,23 @@
-import { FlatList, StyleSheet, TouchableOpacity, StatusBar } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  AppState
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { View, Text, Avatar, Circle, XStack, YStack } from "tamagui";
 import { router } from "expo-router";
-import { io } from "socket.io-client";
-import Colors from "../../constants/Colors";
+import Colors from "../constants/Colors";
 import { storage } from "../utils/Storage";
 import { FilePenLine } from "lucide-react-native";
+import SocketManager from "../controller/SocketManager";
 
 export default function Friends() {
   const numColumns = 2;
 
-  const nameString = storage.getString("name");
-  const idString = storage.getString("id");
+  const [nameString, setNameString] = useState("");
+  const [idString, setIdString] = useState("");
 
   const data = [
     {
@@ -58,10 +64,6 @@ export default function Friends() {
     return item ? item.title : null;
   }
 
-  type Users = {
-    [key: string]: string;
-  };
-
   type User = {
     name: string;
     id: string;
@@ -74,40 +76,45 @@ export default function Friends() {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const socket = io("http://65.1.114.171:9000"); // Replace with your server address
+    setNameString(storage.getString("name")!);
+    setIdString(storage.getString("id")!);
 
-    socket.emit("user-connect", {
-      name: nameString,
-      id: idString,
-      active: true,
-    });
-
-    console.log("name: " + nameString);
-    console.log("id: " + idString);
-
-    socket.on("users", (usersMap: { [name: string]: string }) => {
-      const filteredUsersArray = Object.entries(usersMap)
-        .filter(([name]) => name !== nameString) // Filter out users with name 'John'
-        .map(([name, id]) => ({ name, id }));
-      setUsers(filteredUsersArray);
-      console.log("users: " + filteredUsersArray);
-    });
-
-    socket.emit("get-users", true);
-
-    return () => {
-      socket.disconnect();
-    };
+    // return () => {
+    //   socket.disconnect();
+    // };
   }, []);
 
-  const renderItem = ({ item }: RenderItemProps) => (
-    <TouchableOpacity onPress={async ()  => {
-      await storage.set('friend-name',item.name);
-      await storage.set('friend-id',item.id);
+  useEffect(() => {
+    if (nameString != "") {
+      const socket = SocketManager.getSocket()!; // Replace with your server address
 
-      console.log(storage.getString('friend-name')+' '+storage.getString('friend-id'));
-      router.push('../chat/chat')
-    }}>
+      socket.on("users", (usersMap: { [name: string]: string }) => {
+        const filteredUsersArray = Object.entries(usersMap)
+          .filter(([name]) => name !== nameString) // Filter out users with name 'John'
+          .map(([name, id]) => ({ name, id }));
+
+        setUsers(filteredUsersArray);
+        console.log("users: " + usersMap + " for " + nameString);
+      });
+
+      socket.emit("get-users", true);
+    }
+  }, [nameString]);
+
+  const renderItem = ({ item }: RenderItemProps) => (
+    <TouchableOpacity
+      onPress={async () => {
+        await storage.set("friend-name", item.name);
+        await storage.set("friend-id", item.id);
+
+        console.log(
+          storage.getString("friend-name") +
+            " " +
+            storage.getString("friend-id")
+        );
+        router.push("/pages/chat");
+      }}
+    >
       <View
         backgroundColor={Colors.dark.secondary}
         borderRadius={16}
@@ -183,7 +190,7 @@ export default function Friends() {
 
       <TouchableOpacity
         onPress={() => {
-          router.push("../chooseAvatar");
+          router.push("/pages/chooseAvatar");
         }}
         style={{
           position: "absolute",

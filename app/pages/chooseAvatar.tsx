@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Avatar } from "tamagui";
 import { FlatList, StyleSheet, TextInput } from "react-native";
 import Colors from "../constants/Colors";
-import CustomAlert from "./components/customAlert";
-import { storage } from "./utils/Storage";
+import CustomAlert from "../components/customAlert";
+import { storage } from "../utils/Storage";
 import { router } from "expo-router";
 import ProfileData from "../constants/ProfileData";
 
@@ -34,33 +34,32 @@ export default function ChooseAvatar() {
   };
 
   const handleButtonClick = (): void => {
-    if(name == '' || selectedItem == '') {
+    if (name == "" || selectedItem == "") {
       setShowAlert(true);
     }
     // save the info to MMKV storage
     else {
-      storage.set('name',name);
-      storage.set('id',selectedItem);
+      storage.set("name", name);
+      storage.set("id", selectedItem);
 
       // route to the friends page
-      router.replace('./friends/friends');
+      router.replace("/pages/friends");
     }
-  }
+  };
 
   const handleCloseAlert = () => {
     setShowAlert(false);
   };
 
   useEffect(() => {
-    const nameString = storage.getString('name');
-    const id = storage.getString('id');
+    const nameString = storage.getString("name");
+    const id = storage.getString("id");
 
-    if(nameString && id) {
+    if (nameString && id) {
       setName(nameString);
       setSelectedItem(id);
     }
-
-  },[])
+  }, []);
 
   const renderItem = ({ item }: RenderItemProps) => (
     <TouchableOpacity
@@ -86,7 +85,11 @@ export default function ChooseAvatar() {
     >
       <StatusBar barStyle={"light-content"} backgroundColor={"black"} />
 
-      <CustomAlert visible={showAlert} onClose={handleCloseAlert} message="Please enter an alias and pick an avatar" />
+      <CustomAlert
+        visible={showAlert}
+        onClose={handleCloseAlert}
+        message="Please enter an alias and pick an avatar"
+      />
 
       <Text
         style={{
@@ -143,12 +146,14 @@ export default function ChooseAvatar() {
           backgroundColor: Colors.dark.primary,
           borderRadius: 10,
           marginHorizontal: 24,
-          marginVertical:24,
+          marginVertical: 24,
           padding: 12,
           alignItems: "center",
         }}
       >
-        <Text style={{ color: "white", fontFamily: "Helvetica-Bold", fontSize: 14 }}>
+        <Text
+          style={{ color: "white", fontFamily: "Helvetica-Bold", fontSize: 14 }}
+        >
           Submit
         </Text>
       </TouchableOpacity>
